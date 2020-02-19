@@ -81,7 +81,7 @@ spec:
   nodePools:
   - name: worker
   addons:
-  - configRepository: https://github.com/tpetrosyan/konvoymonitoring/kubernetes-base-addons
+  - configRepository: https://github.com/tpetrosyan/konvoymonitoring
     configVersion: master
     addonsList:
     - name: awsebscsiprovisioner
