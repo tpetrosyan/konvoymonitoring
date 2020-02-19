@@ -377,7 +377,7 @@ spec:
           serviceDiscoveryInterval: 5m
           # Add extra arguments to the compact service
           extraArgs:
-            - "--store=prometheus-kubeaddons-prom-prometheus:10901"
+            - "--store=prometheus-kubeaddons-konv-prometheus:10901"
             - "--store=prometheus-kubeaddons-thanos-store-grpc:10901"
             - "--query.auto-downsampling"
             - "--query.partial-response"
