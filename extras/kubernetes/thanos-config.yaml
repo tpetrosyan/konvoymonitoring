@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: thanos-objstore-config
+  namespace: kubeaddons
+type: Opaque
+stringData:
+  object-store.yaml: |-
+    type: s3
+    config:
+      bucket: k8slab-thanos-tig-metrics
+      endpoint: s3.us-west-2.amazonaws.com
