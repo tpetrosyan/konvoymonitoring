@@ -1,0 +1,85 @@
+---
+apiVersion: kubeaddons.mesosphere.io/v1beta1
+kind: Addon
+metadata:
+  name: thanos
+  namespace: kubeaddons
+  labels:
+    kubeaddons.mesosphere.io/name: thanos
+  annotations:
+    catalog.kubeaddons.mesosphere.io/addon-revision: "0.3.14-1"
+    appversion.kubeaddons.mesosphere.io/thanos: "0.3.14"
+    endpoint.kubeaddons.mesosphere.io/thanos: "/ops/portal/thanos"
+    docs.kubeaddons.mesosphere.io/thanos: "https://thanos.io/getting-started.md/"
+    values.chart.helm.kubeaddons.mesosphere.io/thanos: "https://raw.githubusercontent.com/banzaicloud/banzai-charts/4a2e5274e8149c5c7d02583a6f2f109663c1b94e/thanos/values.yaml"
+spec:
+  kubernetes:
+    minSupportedVersion: v1.15.6
+  cloudProvider:
+    - name: aws
+      enabled: true
+    - name: azure
+      enabled: true
+    - name: docker
+      enabled: false
+    - name: none
+      enabled: true
+  chartReference:
+    chart: thanos
+    repo: https://tpetrosyan.github.io/charts/staging
+    version: 0.3.14
+    values: |
+      ---
+      image:
+        repository: quay.io/thanos/thanos
+        tag: v0.10.1
+        pullPolicy: IfNotPresent
+      store:
+        enabled: false
+      bucket:
+        enabled: false
+      rule:
+        enabled: false
+      compact:
+        enabled: false
+      sidecar:
+        enabled: false
+      query:
+        enabled: true
+        # Name of HTTP request header used for dynamic prefixing of UI links and redirects.
+        webPrefixHeader: "X-Forwarded-Prefix"
+        # Enable DNS discovery for stores
+        storeDNSDiscovery: false
+        # Enable DNS discovery for sidecars (this is for the chart built-in sidecar service)
+        sidecarDNSDiscovery: false
+        # Addresses of statically configured store API servers (repeatable).
+        stores: []
+        # Names of configmaps that contain addresses of store API servers, used for file service discovery.
+        # TODO
+        # serviceDiscoveryFileConfigMaps:
+        # - kubeaddons-thanos-query-stores
+        # Refresh interval to re-read file SD files. It is used as a resync fallback.
+        serviceDiscoveryInterval: 5m
+        # Add extra arguments to the compact service
+        extraArgs:
+        - "--grpc-client-server-name=server.thanos.localhost.localdomain"
+        http:
+          service:
+            labels:
+              servicemonitor.kubeaddons.mesosphere.io/path: "metrics"
+          ingress:
+            enabled: true
+            annotations:
+              kubernetes.io/ingress.class: "traefik"
+              traefik.frontend.rule.type: "PathPrefixStrip"
+              traefik.ingress.kubernetes.io/auth-response-headers: "X-Forwarded-User"
+              traefik.ingress.kubernetes.io/auth-type: "forward"
+              traefik.ingress.kubernetes.io/auth-url: "http://traefik-forward-auth-kubeaddons.kubeaddons.svc.cluster.local:4181/"
+              traefik.ingress.kubernetes.io/priority: "2"
+            path: "/ops/portal/kubeaddons/monitoring/query"
+            hosts:
+              - ""
+            tls: []
+      objstoreSecretOverride: ""
+      objstoreFile: ""
+      objstore: []
